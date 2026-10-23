@@ -3,10 +3,13 @@ import { PrismaClient } from '@prisma/client';
 import { registerErrorHandler } from './shared/error-handler.js';
 import { registerSlotRoutes } from './modules/slots/slot.routes.js';
 import type { SlotRepository } from './modules/slots/slot.repository.js';
+import { registerBookingRoutes } from './modules/bookings/booking.routes.js';
+import type { BookingRepository } from './modules/bookings/booking.repository.js';
 
 export interface AppOptions {
   prisma?: PrismaClient;
   slotRepository?: SlotRepository;
+  bookingRepository?: BookingRepository;
   logger?: boolean;
 }
 
@@ -18,6 +21,7 @@ export function buildApp(options: AppOptions = {}): FastifyInstance {
 
   app.get('/health', async () => ({ status: 'ok' }));
   registerSlotRoutes(app, options.slotRepository);
+  registerBookingRoutes(app, options.bookingRepository);
 
   registerErrorHandler(app);
 

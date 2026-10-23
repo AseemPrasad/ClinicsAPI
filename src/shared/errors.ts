@@ -5,6 +5,10 @@ export type ErrorCode =
   | 'INVALID_TIME_RANGE'
   | 'SLOT_STARTS_IN_PAST'
   | 'SLOT_HAS_CONFIRMED_BOOKING'
+  | 'SLOT_ALREADY_BOOKED'
+  | 'SLOT_CANCELLED'
+  | 'BOOKING_NOT_FOUND'
+  | 'BOOKING_ALREADY_CANCELLED'
   | 'INTERNAL_ERROR';
 
 export class AppError extends Error {
