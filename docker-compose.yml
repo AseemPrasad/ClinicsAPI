@@ -16,5 +16,23 @@ services:
       timeout: 5s
       retries: 10
 
+  postgres-test:
+    image: postgres:16.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: clinics_test
+      POSTGRES_PASSWORD: clinics_test
+      POSTGRES_DB: clinics_test
+    ports:
+      - '55432:5432'
+    volumes:
+      - clinics-postgres-test-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U clinics_test -d clinics_test']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   clinics-postgres-data:
+  clinics-postgres-test-data:

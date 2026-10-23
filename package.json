@@ -18,7 +18,7 @@
     "prisma:validate": "prisma validate",
     "start": "node dist/server.js",
     "test": "vitest run",
-    "test:postgres": "prisma migrate deploy && vitest run tests/integration/postgres.test.ts",
+    "test:postgres": "node scripts/test-postgres.mjs",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },

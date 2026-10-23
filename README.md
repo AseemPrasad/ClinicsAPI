@@ -97,9 +97,19 @@ and never performs cleanup unless this guard passes.
 Apply migrations and run the suite with:
 
 ```sh
-$env:DATABASE_URL = "postgresql://clinics:clinics@localhost:5432/clinics_test?schema=public"
 npm run test:postgres
 ```
+
+When `DATABASE_URL` is unset, `npm run test:postgres` defaults to
+`postgresql://clinics_test:clinics_test@localhost:55432/clinics_test?schema=public`.
+Start the isolated test database with:
+
+```sh
+docker compose up -d postgres-test
+```
+
+Set `DATABASE_URL` to override that connection. `.env.test.example` documents
+the expected local connection.
 
 The suite uses real Fastify injection requests against the Prisma repository,
 real PostgreSQL transactions, row locks, and the partial unique index. It

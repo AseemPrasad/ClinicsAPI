@@ -8,24 +8,29 @@ import {
 import { PrismaSlotRepository, type SlotRepository } from './slot.repository.js';
 import { SlotService } from './slot.service.js';
 
-function serializeSlot(slot: {
-  id: string;
-  clinicId: string;
-  startsAt: Date;
-  endsAt: Date;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-  cancelledAt: Date | null;
-  availability?: string;
-}) {
+function serializeSlot(
+  slot: {
+    id: string;
+    clinicId: string;
+    startsAt: Date;
+    endsAt: Date;
+    status: string;
+    createdAt: Date;
+    updatedAt: Date;
+    cancelledAt: Date | null;
+    availability?: string;
+  },
+  availabilityOverride?: 'available' | 'booked' | 'cancelled',
+) {
   return {
     id: slot.id,
     clinicId: slot.clinicId,
     startsAt: slot.startsAt.toISOString(),
     endsAt: slot.endsAt.toISOString(),
     status: slot.status,
-    ...(slot.availability ? { availability: slot.availability } : {}),
+    ...(availabilityOverride || slot.availability
+      ? { availability: availabilityOverride ?? slot.availability }
+      : {}),
     createdAt: slot.createdAt.toISOString(),
     updatedAt: slot.updatedAt.toISOString(),
     cancelledAt: slot.cancelledAt?.toISOString() ?? null,
@@ -39,7 +44,7 @@ export function registerSlotRoutes(app: FastifyInstance, repository?: SlotReposi
     const params = clinicParamsSchema.parse(request.params);
     const body = createSlotBodySchema.parse(request.body);
     const slot = await service.createSlot(params.clinicId, body);
-    return reply.status(201).send({ slot: serializeSlot(slot) });
+    return reply.status(201).send({ slot: serializeSlot(slot, 'available') });
   });
 
   app.get('/clinics/:clinicId/slots', async (request) => {
@@ -47,7 +52,7 @@ export function registerSlotRoutes(app: FastifyInstance, repository?: SlotReposi
     const query = listSlotsQuerySchema.parse(request.query);
     const result = await service.listSlots(params.clinicId, query);
     return {
-      items: result.items.map(serializeSlot),
+      items: result.items.map((slot) => serializeSlot(slot)),
       pagination: {
         page: query.page,
         limit: query.limit,
