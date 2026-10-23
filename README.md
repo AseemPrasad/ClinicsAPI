@@ -85,3 +85,22 @@ npm run lint
 npm run format:check
 npm test
 ```
+
+## PostgreSQL integration tests
+
+The repository includes a separate PostgreSQL-only suite at
+`tests/integration/postgres.test.ts`. It requires `DATABASE_URL` to point to a
+dedicated database whose name contains `test` (for example,
+`clinics_test`). The suite refuses to run against a database with another name
+and never performs cleanup unless this guard passes.
+
+Apply migrations and run the suite with:
+
+```sh
+$env:DATABASE_URL = "postgresql://clinics:clinics@localhost:5432/clinics_test?schema=public"
+npm run test:postgres
+```
+
+The suite uses real Fastify injection requests against the Prisma repository,
+real PostgreSQL transactions, row locks, and the partial unique index. It
+asserts persisted state after concurrent booking and cancellation races.
