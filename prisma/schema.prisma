@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppointmentSlotStatus {
+  available
+  cancelled
+}
+
+enum BookingStatus {
+  confirmed
+  cancelled
+}
+
+model Clinic {
+  id        String             @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  slots     AppointmentSlot[]
+
+  @@map("clinics")
+}
+
+model AppointmentSlot {
+  id          String                 @id @default(uuid()) @db.Uuid
+  clinicId    String                 @map("clinic_id") @db.Uuid
+  startsAt    DateTime               @map("starts_at") @db.Timestamptz(6)
+  endsAt      DateTime               @map("ends_at") @db.Timestamptz(6)
+  status      AppointmentSlotStatus  @default(available)
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  cancelledAt DateTime?              @map("cancelled_at") @db.Timestamptz(6)
+  clinic      Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  bookings    Booking[]
+
+  @@index([clinicId, startsAt, id])
+  @@index([clinicId, status, startsAt, id])
+  @@map("appointment_slots")
+}
+
+model Booking {
+  id          String            @id @default(uuid()) @db.Uuid
+  slotId      String            @map("slot_id") @db.Uuid
+  patientId   String            @map("patient_id") @db.Uuid
+  status      BookingStatus     @default(confirmed)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  cancelledAt DateTime?         @map("cancelled_at") @db.Timestamptz(6)
+  slot        AppointmentSlot   @relation(fields: [slotId], references: [id], onDelete: Restrict)
+
+  @@index([slotId])
+  @@index([patientId, createdAt])
+  @@map("bookings")
+}
